@@ -341,7 +341,6 @@ img#cover-img {
     flex: 1;
 }
 a.icon {
-    font-size: 1.8rem;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     position: relative;
@@ -349,11 +348,6 @@ a.icon {
 .header a.icon {
     padding: 0 0.4rem;
     font-size: 1.6rem;
-}
-.buttons a.icon {
-    margin: 0.5rem;
-    font-size: 2.2rem;
-    padding: 0.2rem;
 }
 a.icon::after {
     content: '';
@@ -381,11 +375,12 @@ a.icon:hover::after {
     align-items: center;
     background: var(--main);
     color: var(--back);
+    padding-bottom: 0.5rem;
 }
 .buttons a.icon {
-    margin: 0.5rem;
+    margin: 0.3rem 0.2rem;
     font-size: 2.2rem;
-    padding: 0.2rem;
+    padding: 0 0.4rem;
 }
 .buttons a.icon[data-sig] i {
     transform: scale(0.7);
@@ -606,44 +601,47 @@ a.icon:hover::after {
     color: var(--main);
 }
 .progress-bar {
-    position: relative;
     background: var(--main);
-    padding: var(--minborder);
-    height: 12px;
+    padding: 6px;
     width: 100%;
     cursor: pointer;
-    overflow: hidden;
 }
-.progress-bar::before {
-    content: '';
-    position: absolute;
-    top: var(--minborder);
-    left: var(--minborder);
-    right: var(--minborder);
-    bottom: var(--minborder);
+.progress-bar .progress-in {
+    position: relative;
+    height: 8px;
+}
+.progress-bar .progress-in .progress-back {
+    width: 100%;
+    height: inherit;
+    border-radius: 8px;
     background: var(--back);
     opacity: 0.2;
-    width: calc(100% - (var(--minborder) * 2));
-    height: calc(100% - (var(--minborder) * 2));
-    z-index: 1;
 }
 .progress-bar #time {
-    position: relative;
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: inherit;
     z-index: 2;
     background: var(--back);
-    height: 100%;
-    display: inline-block;
+    opacity: 1;
+    border-radius: 8px;
 }
-#time::after {
+#time .time-circle {
     content: '';
     position: absolute;
     top: 50%;
     transform: translate(50%, -50%);
     background: var(--back);
-    border-radius: 8px;
-    width: 8px;
-    height: 8px;
+    border-radius: 16px;
+    width: 14px;
+    height: 14px;
     right: 0;
+    transition: all 0.2s;
+}
+#time .time-circle:hover {
+    height: 18px;
+    width: 18px;
 }
 .select select {
     position: fixed;

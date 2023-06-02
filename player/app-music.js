@@ -280,6 +280,7 @@ window.addEventListener('load', function() {
     total / 2 > x ? x -= minborder : x += minborder
     let toset = x * aud.duration / total
     mus.f.seek_absolute(toset)
+    mus.v.play()
   })
 
   mus.f.inpse
