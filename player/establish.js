@@ -1,4 +1,4 @@
-// for redir use redirectPlayList.js
+// for redir use 'redirectPlayList.js'
 // let redirList = 'all'
 
 (function() {
