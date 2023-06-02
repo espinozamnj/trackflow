@@ -270,6 +270,10 @@ window.addEventListener('load', function() {
   }
   mus.f.seek_absolute = function(time) {
     aud.currentTime = time
+    if (mus.a.paused) {
+      mus.f.go()
+      mus.f.go()
+    }
   }
   $('.progress-bar').addEventListener('click', function(e) {
     let emt = $('.progress-bar')
@@ -280,9 +284,7 @@ window.addEventListener('load', function() {
     total / 2 > x ? x -= minborder : x += minborder
     let toset = x * aud.duration / total
     mus.f.seek_absolute(toset)
-    mus.v.play()
   })
-
   mus.f.inpse
   mus.f.go = function() {
     if (mus.v.paused) {
@@ -375,8 +377,7 @@ window.addEventListener('load', function() {
     $("#time").style.width = cuanto + '%'
     if (cuanto > 99) {
       mus.f.siguiente()
-    } else {}
-    
+    }
   }
   mus.f.list = function () {
     let list = $('.info')
@@ -589,6 +590,8 @@ window.addEventListener('load', function() {
     const video = mus.v
     video.srcObject = canvas.captureStream()
     video.play()
+    mus.f.go()
+    mus.f.go()
     video.muted = true
 
     const image = new Image()
