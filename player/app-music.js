@@ -424,9 +424,6 @@ window.addEventListener('load', function() {
       let toscroll = element_song.offsetTop
       toscroll = toscroll - $('.header').offsetHeight - minborder * 2 * 3
       the_list.scrollTop = toscroll
-      let toSearchOnYoutube = mus.song.artist.toLowerCase() + ' ' + mus.song.name.toLowerCase()
-      toSearchOnYoutube = encodeURIComponent(toSearchOnYoutube)
-      toSearchOnYoutube = 'https://www.youtube.com/results?search_query=' + toSearchOnYoutube
       let fBase = servicesMusic[sSrv]
       let song_link = 'https://song.link/' + fBase['short'].replace(/@i/g, mus.song.id)
       let songURLs = {
@@ -462,6 +459,11 @@ window.addEventListener('load', function() {
       mus.f.setPallete(mus.f.getsrcCover(mus.song, 100))
       mus.f.api_media()
     }, 5e2)
+  }
+  mus.f.siy = function(song) {
+    let paramSearch = encodeURIComponent((song.artist + ' ' + song.name).toLowerCase())
+    let urlSearch = 'https://www.youtube.com/results?search_query=' + paramSearch
+    open(urlSearch)
   }
   mus.f.sortBy = function(type) {
     let list = $('.list')
@@ -629,6 +631,7 @@ window.addEventListener('load', function() {
   $('[bt-icon=mode]').addEventListener('click', mus.f.change_mode)
   $('[data-set=prev]').addEventListener('click', function() {mus.f.next(-1)})
   $('[data-set=next]').addEventListener('click', mus.f.siguiente)
+  $('[data-set=btn-ytp]').addEventListener('click', function() {mus.f.siy(mus.song)})
   $('#range-vol').addEventListener('input', function(e){
     mus.f.volume(e.target.value, false)
   })

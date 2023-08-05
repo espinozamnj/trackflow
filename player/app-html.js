@@ -83,10 +83,10 @@ var $ = (d) => {return $$(d)[0]}
               <i class="bi bi-pip"></i>
               <span>Mini player mode</span>
             </a>
-            <!-- <a class="icon" data-set="btn-ytp">
+            <a class="icon" data-set="btn-ytp">
               <i class="bi bi-youtube"></i>
               <span>Search with YouTube</span>
-            </a> -->
+            </a>
             <a class="icon" data-set="btn-eye">
               <i class="bi bi-eye-slash-fill"></i>
               <span>Hidden</span>
