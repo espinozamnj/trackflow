@@ -94,7 +94,7 @@ window.addEventListener('load', function() {
     })
   }
   mus.track_list.setAttribute('multiple', '')
-  mus.track_list.addEventListener('change', function(e){
+  mus.track_list.addEventListener('change', function(e) {
     mus.f.playing(e.target.value)
   })
   $('.select').appendChild(mus.track_list)
@@ -251,7 +251,7 @@ window.addEventListener('load', function() {
       mus.f.volume(1, true)
     }
   }
-  mus.f.recuva_volume = function(){
+  mus.f.recuva_volume = function() {
     if (localStorage['aud-volume-music-player'] !== undefined) {
       let vol = localStorage['aud-volume-music-player']
       setTimeout(function() {
@@ -270,7 +270,7 @@ window.addEventListener('load', function() {
   }
   mus.f.seek_absolute = function(time) {
     aud.currentTime = time
-    if (mus.a.paused) {
+    if (aud.paused) {
       mus.f.go()
       mus.f.go()
     }
@@ -292,7 +292,7 @@ window.addEventListener('load', function() {
       mus.v.play()
       $('[bt-icon=play]').setAttribute('playing', 'true')
       mus.f.inpse = setInterval(function() {
-        mus.f.revisar()
+        mus.f.evalState()
       }, 750)
     } else {
       // aud.pause()
@@ -307,19 +307,30 @@ window.addEventListener('load', function() {
   mus.f.show_info = function() {
     $('.main').classList.toggle('force_info')
   }
-  mus.f.next = function(sum){
+  mus.f.next = function(sum) {
     let new_order
     let this_play = $('a.playing')
+    let rs = false
+    if (sum == -1 && aud.currentTime > 3) {
+      rs = true
+      aud.muted = true
+      setTimeout(function() {
+        aud.currentTime = 0
+        aud.muted = false
+      }, 4e2)
+    }
     let parnt = this_play.parentNode
     let to_add = 0, new_play_e = this_play
     if (sum < 0) {
-      while (to_add > sum) {
-        if (new_play_e == parnt.firstChild) {
-          new_play_e = parnt.lastChild
-        } else {
-          new_play_e = new_play_e.previousElementSibling
+      if (!rs) {
+        while (to_add > sum) {
+          if (new_play_e == parnt.firstChild) {
+            new_play_e = parnt.lastChild
+          } else {
+            new_play_e = new_play_e.previousElementSibling
+          }
+          to_add--
         }
-        to_add--
       }
     } else {
       while (to_add < sum) {
@@ -360,7 +371,7 @@ window.addEventListener('load', function() {
       mus.f.sortBy('deffff')
     }
   }
-  mus.f.siguiente = function() {
+  mus.f.pass = function() {
     let mode = mus.f.get_mode()
     if (mode[1] == 'normal') {
       mus.f.next(1)
@@ -368,18 +379,17 @@ window.addEventListener('load', function() {
       mus.f.next(0)
     } else {
       mus.f.next(1)
-      // mus.f.next(Math.floor(Math.random() * base.length) + 1)
     }
   }
-  mus.f.revisar = function() {
-    let cuanto = aud.currentTime * 1e2 / aud.duration
-    cuanto = Math.round(cuanto * 1e2) / 1e2
-    $("#time").style.width = cuanto + '%'
-    if (cuanto > 99) {
-      mus.f.siguiente()
+  mus.f.evalState = function() {
+    let perc = aud.currentTime * 1e2 / aud.duration
+    perc = Math.round(perc * 1e2) / 1e2
+    $("#time").style.width = perc + '%'
+    if (Math.round(mus.a.duration) - Math.round(mus.a.currentTime) < 1) {
+      mus.f.pass()
     }
   }
-  mus.f.list = function () {
+  mus.f.list = function() {
     let list = $('.info')
     let attr = 'data-list'
     let status = list.getAttribute(attr)
@@ -417,7 +427,7 @@ window.addEventListener('load', function() {
       }, 5e2)
       let the_list = $('.list')
       let element_song = $('[data-id="' + mus.t_id + '"]')
-      the_list.childNodes.forEach(function(s){
+      the_list.childNodes.forEach(function(s) {
         s.classList.remove('playing')
       })
       element_song.classList.add('playing')
@@ -453,7 +463,7 @@ window.addEventListener('load', function() {
         }, 5e2)
       }, 5e2)
 
-      $$('#cover-bg, #cover-img').forEach(function(s){
+      $$('#cover-bg, #cover-img').forEach(function(s) {
         s.setAttribute('src', mus.f.getsrcCover(mus.song, 500))
       })
       mus.f.setPallete(mus.f.getsrcCover(mus.song, 100))
@@ -546,13 +556,13 @@ window.addEventListener('load', function() {
         })
       }
     }
-    if (available){
-      navigator.mediaSession.setActionHandler('play',function() {mus.f.go()})
-      navigator.mediaSession.setActionHandler('pause',function() {mus.f.go()})
-      navigator.mediaSession.setActionHandler('seekbackward',function() {mus.f.seek_relative(-5)})
-      navigator.mediaSession.setActionHandler('seekforward',function() {mus.f.seek_relative(5)})
-      navigator.mediaSession.setActionHandler('previoustrack',function() {mus.f.next(-1)})
-      navigator.mediaSession.setActionHandler('nexttrack',function() {mus.f.siguiente()})
+    if (available) {
+      navigator.mediaSession.setActionHandler('play', function() {mus.f.go()})
+      navigator.mediaSession.setActionHandler('pause', function() {mus.f.go()})
+      navigator.mediaSession.setActionHandler('seekbackward', function() {mus.f.seek_relative(-5)})
+      navigator.mediaSession.setActionHandler('seekforward', function() {mus.f.seek_relative(5)})
+      navigator.mediaSession.setActionHandler('previoustrack', function() {mus.f.next(-1)})
+      navigator.mediaSession.setActionHandler('nexttrack', function() {mus.f.pass()})
     }
   }
   mus.f.focusE = function() {
@@ -568,10 +578,10 @@ window.addEventListener('load', function() {
     $('.player').classList.toggle('oc')
   }
   mus.v.addEventListener('play', function() {
-    mus.a.play()
+    aud.play()
   })
   mus.v.addEventListener('pause', function() {
-    mus.a.pause()
+    aud.pause()
   })
   mus.v.addEventListener('volumechange', function() {
     // mus.f.volume(mus.v.volume, true)
@@ -630,9 +640,9 @@ window.addEventListener('load', function() {
   $('#cover-img').addEventListener('dblclick', mus.f.blur)
   $('[bt-icon=mode]').addEventListener('click', mus.f.change_mode)
   $('[data-set=prev]').addEventListener('click', function() {mus.f.next(-1)})
-  $('[data-set=next]').addEventListener('click', mus.f.siguiente)
+  $('[data-set=next]').addEventListener('click', mus.f.pass)
   $('[data-set=btn-ytp]').addEventListener('click', function() {mus.f.siy(mus.song)})
-  $('#range-vol').addEventListener('input', function(e){
+  $('#range-vol').addEventListener('input', function(e) {
     mus.f.volume(e.target.value, false)
   })
 
@@ -687,7 +697,7 @@ window.addEventListener('load', function() {
       dot: (kk == '.' || kc == 'NumpadDecimal'),
     }
     /*.........*/'Space' == kc && mc && ms && mus.f.go()
-    /*.....*/'ArrowDown' == kc && mc && ms && mus.f.siguiente()
+    /*.....*/'ArrowDown' == kc && mc && ms && mus.f.pass()
     /*.......*/'ArrowUp' == kc && mc && ms && mus.f.next(-1)
     /*.....*/'ArrowLeft' == kc && mc && ms && mus.f.seek_relative(-5)
     /*....*/'ArrowRight' == kc && mc && ms && mus.f.seek_relative(5)
