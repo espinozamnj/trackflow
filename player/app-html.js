@@ -9,7 +9,7 @@
 
 var $$ = (d) => {return document.querySelectorAll(d)}
 var $ = (d) => {return $$(d)[0]}
-(function(){
+(function() {
   let elmnt = document.getElementsByClassName('app')[0]
   elmnt.innerHTML = /*html*/ `<div class="player">
   <div class="hidden">
@@ -29,6 +29,11 @@ var $ = (d) => {return $$(d)[0]}
         </a>
       </div>
       <div class="title-song"></div>
+      <div bt-icon="find">
+        <a class="icon">
+          <i class="bi bi-search"></i>
+        </a>
+      </div>
       <div bt-icon="sett">
         <a class="icon">
           <i class="bi bi-three-dots"></i>
@@ -36,6 +41,11 @@ var $ = (d) => {return $$(d)[0]}
       </div>
     </div>
     <div class="main">
+      <div class="modal-search">
+        <div class="modal-blur"></div>
+        <input type="text">
+        <div class="results-search-cont faded"></div>
+      </div>
       <div class="sett">
         <div class="about">
           <div class="vol-control">
@@ -136,6 +146,10 @@ var $ = (d) => {return $$(d)[0]}
             <div class="shortcut">
               <div class="key-action">Toggle PIP view</div>
               <div class="key-code"><span>Shift</span><span>P</span></div>
+            </div>
+            <div class="shortcut">
+              <div class="key-action">Open search bar</div>
+              <div class="key-code"><span>Shift</span><span>F</span></div>
             </div>
             <div class="shortcut">
               <div class="key-action">Toggle view hidden</div>

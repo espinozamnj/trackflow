@@ -224,16 +224,19 @@ window.addEventListener('load', function() {
     })
   }
   mus.f.volume = function(vol, move) {
+    let showTip = aud.volume != vol
     aud.volume = vol
     localStorage.setItem('aud-volume-music-player', vol)
     let fixed_vol = Math.round(vol * 100)
-    $('.vol-text').innerText = fixed_vol + '%'
-    let tip = $('.info-vol')
-    $('#vol-tip-msg').innerText = fixed_vol
-    tip.classList.add('tip-visible')
-    setTimeout(function() {
-      tip.classList.remove('tip-visible')
-    }, 2e3)
+    if (showTip) {
+      $('.vol-text').innerText = fixed_vol + '%'
+      let tip = $('.info-vol')
+      $('#vol-tip-msg').innerText = fixed_vol
+      tip.classList.add('tip-visible')
+      setTimeout(function() {
+        tip.classList.remove('tip-visible')
+      }, 2e3)
+    }
     if (move) {
       setTimeout(function() {
         $('#range-vol').value = Number(vol)
@@ -454,7 +457,7 @@ window.addEventListener('load', function() {
             try {
               mus.f.go()
             } catch (error) {
-              console.error(error)
+              // console.error(error)
             }
           }, 2e2)
         }
@@ -475,6 +478,129 @@ window.addEventListener('load', function() {
     let urlSearch = 'https://www.youtube.com/results?search_query=' + paramSearch
     open(urlSearch)
   }
+  mus.f.findSong = function(query) {
+    query = query.trim()
+    let contR = $('.results-search-cont')
+    if (query != '') {
+      let results = new Array(6)
+      function lowComp(a, b) {
+        return a.toLowerCase().includes(b.toLowerCase())
+      }
+      function equComp(a, b) {
+        return a.toLowerCase() == b.toLowerCase()
+      }
+      let chs = $$('.list [data-id]')
+      let byArt = false
+      if (query.charAt(0) == '@') {
+        query = query.slice(1)
+        byArt = true
+      }
+      chs.forEach(function(s) {
+        let id = s.getAttribute('data-id')
+        let possTrack = musicList.tracks[id]
+        let level = -1 
+        !byArt && lowComp(possTrack.album, query) && (level = 5)
+        lowComp(possTrack.artist, query) && (level = 4)
+        !byArt && lowComp(possTrack.name, query) && (level = 3)
+        !byArt && equComp(possTrack.album, query) && (level = 2)
+        equComp(possTrack.artist, query) && (level = 1)
+        !byArt && equComp(possTrack.name, query) && (level = 0)
+        if (level > -1) {
+          results[level] = results[level] || []
+          results[level].push({
+            name: possTrack.name,
+            artist: possTrack.artist,
+            o: id,
+            item: s
+          })
+        }
+      })
+      contR.innerHTML = ''
+      let totalResults = 0
+      results.forEach(function(lr) {
+        if (lr) {
+          lr.forEach(function(rs) {
+            contR.appendChild((function() {
+              totalResults++
+              let sr = document.createElement('a')
+              sr.innerHTML = /*html*/`
+                <div class="set-by-f">
+                  <p class="sr-n">${rs.name}</p>
+                  <p class="sr-a">${rs.artist}</p>
+                </div>
+                <button><i class="bi bi-arrow-up-circle-fill"></i></button>`
+              sr.querySelector('.set-by-f').addEventListener('click', function() {
+                mus.f.playing(rs.o)
+              })
+              sr.querySelector('button').addEventListener('click', function() {
+                rs.item.querySelector('button').click()
+              })
+              return sr
+            })())
+          })
+        }
+      })
+      contR.classList.remove('faded')
+      contR.classList.remove('empty')
+      if (totalResults == 0) {
+        contR.classList.add('empty')
+        contR.innerHTML = '<div class="msg-empty">Sin resultados</div>'
+      }
+    } else {
+      contR.classList.add('faded')
+    }
+  }
+  let findModal = $('.modal-search')
+  let searhFn = {
+    o: function() {
+      findModal.style.display = 'flex'
+      setTimeout(function() {
+        findModal.classList.add('show')
+      }, 20)
+      setTimeout(function() {
+        findModal.classList.remove('an')
+      }, 4e2)
+    },
+    c: function() {
+      findModal.classList.remove('show')
+      setTimeout(function() {
+        findModal.style.display = 'none'
+        findModal.classList.remove('an')
+      }, 4e2)
+    }
+  }
+  $('.modal-search .modal-blur').addEventListener('click', function() {
+    searhFn.c()
+  })
+  mus.f.open_search = function() {
+    if (findModal.classList.contains('an')) {
+      return false
+    } else {
+      findModal.classList.add('an')
+    }
+    if (findModal.classList.contains('show')) {
+      searhFn.c()
+    } else {
+      searhFn.o()
+      iptSearch.focus()
+      setTimeout(function() {
+        iptSearch.value = iptSearch.value.replace(/F$/, '')
+        mus.f.findSong(iptSearch.value)
+      }, 50)
+    }
+  }
+  let iptSearch = $('.modal-search input')
+  iptSearch.addEventListener('input', function() {
+    mus.f.findSong(iptSearch.value)
+  })
+  iptSearch.addEventListener('keydown', function(e) {
+    if (e.altKey && !e.shiftKey && e.code == 'KeyC') {
+      searhFn.c()
+    }
+  })
+  iptSearch.addEventListener('blur', function() {
+    iptSearch.setAttribute('data-last-focus', 1 * new Date)
+  })
   mus.f.sortBy = function(type) {
     let list = $('.list')
     if (type !== 'random') {
@@ -633,6 +759,7 @@ window.addEventListener('load', function() {
   mus.f.playing(musicList.initSongPlay, '')
   mus.v.setAttribute('controls', '')
 
+  $('[bt-icon=find]').addEventListener('click', mus.f.open_search)
   $('[bt-icon=list]').addEventListener('click', mus.f.list)
   $('[bt-icon=sett]').addEventListener('click', mus.f.show_settings)
   $('[bt-icon=play]').addEventListener('click', mus.f.go)
@@ -681,6 +808,18 @@ window.addEventListener('load', function() {
 
 
   window.addEventListener('keydown', function(e) {
+    if (this.document.activeElement == iptSearch) {
+      return false
+    }
+    if (e.code == 'Escape') {
+      if (iptSearch.hasAttribute('data-last-focus')) { 
+        let dfte = 1 * new Date - Number(iptSearch.getAttribute('data-last-focus'))
+        if (dfte < 1e3) {
+          findModal.classList.add('an')
+          searhFn.c()
+        }
+      }
+    }
     // "select" != mus.f.focusE && e.preventDefault()
     let kc = e.code,
       kk = e.key,
@@ -706,6 +845,7 @@ window.addEventListener('load', function() {
     /*..........*/keyinput.mul && mc && Ms && mus.f.only_controls()
     /*..........*/keyinput.mul && Mc && ms && mus.f.show_info()
     /*..........*/keyinput.div && Mc && iS && mus.f.list()
+    /*..........*/'KeyF' == kc && mc && Ms && mus.f.open_search()
     /*..........*/'KeyM' == kc && mc && Ms && mus.f.change_mode()
     /*..........*/'KeyP' == kc && mc && Ms && mus.f.altpicture()
     /*..........*/keyinput.dot && Mc && ms && mus.f.show_settings()
